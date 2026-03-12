@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astrology Match & Numerology</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-pills .nav-link {
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-pills .nav-link.active {
+            background: var(--bg-gradient);
+        }
+        
+        .btn-primary {
+            background: var(--bg-gradient);
+            border: none;
+            padding: 12px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+            color: white;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .result-card.numerology {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .result-card.partner {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            font-weight: bold;
+            margin: 0 auto;
+        }
+        
+        .detail-item {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+        }
+        
+        .detail-item .label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        .detail-item .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        /* Name suggestion cards */
+        .name-suggestion-card {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+        
+        .name-suggestion-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.35);
+        }
+        
+        .name-suggestion-card .name {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .name-suggestion-card .meaning {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .name-suggestion-card .number {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        /* Autocomplete Styles */
+        .autocomplete-wrapper {
+            position: relative;
+        }
+        
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 8px 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .autocomplete-dropdown.show {
+            display: block;
+        }
+        
+        .autocomplete-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+        
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+        
+        .autocomplete-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .autocomplete-item .city {
+            font-weight: 700;
+            color: #1a1a2e;
+            font-size: 1rem;
+        }
+        
+        .autocomplete-item .state {
+            color: #4a4a6a;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+        
+        .autocomplete-item .country {
+            color: #6366f1;
+            font-size: 0.9em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .autocomplete-loading {
+            padding: 12px 15px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        /* Tab content transition */
+        .tab-pane {
+            transition: opacity 0.3s ease;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center mb-4">
+                    <h1 class="text-white mb-3">
+                        <i class="fas fa-star-and-crescent"></i> Astrology Match & Numerology
+                    </h1>
+                    <p class="text-white-50">Discover your cosmic compatibility using real numerology</p>
+                </div>
+                
+                <div class="card p-4">
+                    <ul class="nav nav-pills justify-content-center mb-4" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="match-tab" data-bs-toggle="pill" data-bs-target="#match" type="button">
+                                <i class="fas fa-heart"></i> Match Check
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="numerology-tab" data-bs-toggle="pill" data-bs-target="#numerology" type="button">
+                                <i class="fas fa-infinity"></i> Numerology
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="partner-tab" data-bs-toggle="pill" data-bs-target="#partner" type="button">
+                                <i class="fas fa-hand-holding-heart"></i> Partner Match
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="pills-tabContent">
+                        <!-- Match Check Tab -->
+                        <div class="tab-pane fade show active" id="match" role="tabpanel">
+                            <form id="matchForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <h5 class="text-primary"><i class="fas fa-male"></i> Male Details</h5>
+                                        <div class="mb-3">
+                                            <label class="form-label">Name</label>
+                                            <input type="text" class="form-control" id="maleName" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Birth Date</label>
+                                            <input type="text" class="form-control" id="maleBirthDate" placeholder="DD-MM-YYYY or YYYY-MM-DD" required>
+                                            <small class="text-muted">Format: DD-MM-YYYY (e.g., 15-03-1990)</small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Birth Time</label>
+                                            <input type="text" class="form-control" id="maleBirthTime" placeholder="12:00 PM" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Birth Place</label>
+                                            <div class="autocomplete-wrapper">
+                                                <input type="text" class="form-control location-input" id="maleBirthPlace" placeholder="Search location..." required autocomplete="off">
+                                                <div class="autocomplete-dropdown"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <h5 class="text-danger"><i class="fas fa-female"></i> Female Details</h5>
+                                        <div class="mb-3">
+                                            <label class="form-label">Name</label>
+                                            <input type="text" class="form-control" id="femaleName" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Birth Date</label>
+                                            <input type="text" class="form-control" id="femaleBirthDate" placeholder="DD-MM-YYYY or YYYY-MM-DD" required>
+                                            <small class="text-muted">Format: DD-MM-YYYY (e.g., 20-08-1992)</small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Birth Time</label>
+                                            <input type="text" class="form-control" id="femaleBirthTime" placeholder="10:30 AM" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Birth Place</label>
+                                            <div class="autocomplete-wrapper">
+                                                <input type="text" class="form-control location-input" id="femaleBirthPlace" placeholder="Search location..." required autocomplete="off">
+                                                <div class="autocomplete-dropdown"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i> Check Compatibility
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Numerology Tab -->
+                        <div class="tab-pane fade" id="numerology" role="tabpanel">
+                            <form id="numerologyForm">
+                                <div class="row justify-content-center">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Your Name</label>
+                                            <input type="text" class="form-control" id="numName" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Birth Date</label>
+                                            <input type="text" class="form-control" id="numBirthDate" placeholder="DD-MM-YYYY or YYYY-MM-DD" required>
+                                            <small class="text-muted">Format: DD-MM-YYYY (e.g., 15-03-1990)</small>
+                                        </div>
+                                        <div class="text-center">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-calculator"></i> Calculate Numerology
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Partner Match Tab -->
+                        <div class="tab-pane fade" id="partner" role="tabpanel">
+                            <form id="partnerForm">
+                                <div class="row justify-content-center">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Your Name</label>
+                                            <input type="text" class="form-control" id="partnerName" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Birth Date</label>
+                                            <input type="text" class="form-control" id="partnerBirthDate" placeholder="DD-MM-YYYY or YYYY-MM-DD" required>
+                                            <small class="text-muted">Format: DD-MM-YYYY (e.g., 15-03-1990)</small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Gender</label>
+                                            <select class="form-select" id="partnerGender" required>
+                                                <option value="">Select Gender</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                            </select>
+                                        </div>
+                                        <div class="text-center">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-heart"></i> Find Partner Matches
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading Spinner -->
+                    <div class="loading" id="loading">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Calculating cosmic compatibility...</p>
+                    </div>
+                    
+                    <!-- Match Result -->
+                    <div class="result-card mt-4 p-4" id="matchResult" style="display: none;">
+                        <div class="text-center mb-3">
+                            <h3 id="coupleName"></h3>
+                            <div class="score-circle" id="scoreCircle"></div>
+                            <h4 class="mt-3" id="category"></h4>
+                            <p id="summary"></p>
+                        </div>
+                        
+                        <!-- Detailed Scores -->
+                        <div class="row mt-3">
+                            <div class="col-6 col-md-3 mb-2">
+                                <div class="detail-item text-center">
+                                    <div class="label">Zodiac</div>
+                                    <div class="value" id="zodiacMatch"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-2">
+                                <div class="detail-item text-center">
+                                    <div class="label">Life Path</div>
+                                    <div class="value" id="lifePathMatch"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-2">
+                                <div class="detail-item text-center">
+                                    <div class="label">Destiny</div>
+                                    <div class="value" id="destinyMatch"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-2">
+                                <div class="detail-item text-center">
+                                    <div class="label">Name</div>
+                                    <div class="value" id="nameCompatibility"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Personal Numbers -->
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <div class="detail-item">
+                                    <strong><i class="fas fa-male"></i> Male Numbers</strong>
+                                    <div class="small" id="maleNumbers"></div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="detail-item">
+                                    <strong><i class="fas fa-female"></i> Female Numbers</strong>
+                                    <div class="small" id="femaleNumbers"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Numerology Result -->
+                    <div class="result-card numerology mt-4 p-4" id="numerologyResult" style="display: none;">
+                        <div class="text-center mb-3">
+                            <h3 id="numNameResult"></h3>
+                        </div>
+                        
+                        <!-- Core Numbers -->
+                        <div class="row text-center">
+                            <div class="col-4 col-md-2 mb-2">
+                                <div class="detail-item">
+                                    <div class="label">Life Path</div>
+                                    <div class="h4" id="lifePathNum"></div>
+                                </div>
+                            </div>
+                            <div class="col-4 col-md-2 mb-2">
+                                <div class="detail-item">
+                                    <div class="label">Destiny</div>
+                                    <div class="h4" id="destinyNum"></div>
+                                </div>
+                            </div>
+                            <div class="col-4 col-md-2 mb-2">
+                                <div class="detail-item">
+                                    <div class="label">Soul Urge</div>
+                                    <div class="h4" id="soulUrgeNum"></div>
+                                </div>
+                            </div>
+                            <div class="col-4 col-md-2 mb-2">
+                                <div class="detail-item">
+                                    <div class="label">Personality</div>
+                                    <div class="h4" id="personalityNum"></div>
+                                </div>
+                            </div>
+                            <div class="col-4 col-md-2 mb-2">
+                                <div class="detail-item">
+                                    <div class="label">Birth Day</div>
+                                    <div class="h4" id="birthDayNum"></div>
+                                </div>
+                            </div>
+                            <div class="col-4 col-md-2 mb-2">
+                                <div class="detail-item">
+                                    <div class="label">Challenge</div>
+                                    <div class="h4" id="challengeNum"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pinnacles -->
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <div class="detail-item">
+                                    <div class="label text-center d-block">Life Pinnacles</div>
+                                    <div class="text-center" id="pinnacles"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Prediction -->
+                        <div class="mt-3 p-3 bg-white bg-opacity-25 rounded">
+                            <p class="mb-0" id="prediction"></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Partner Recommendation Result -->
+                    <div class="result-card partner mt-4 p-4" id="partnerResult" style="display: none;">
+                        <!-- User Profile -->
+                        <div class="text-center mb-3">
+                            <h3><i class="fas fa-user"></i> Your Numerology Profile</h3>
+                            <h4 id="partnerUserName"></h4>
+                            <p class="mb-1" id="partnerUserGender"></p>
+                            <div class="score-circle" id="partnerLifePathCircle"></div>
+                            <p class="mt-2" id="partnerPrediction"></p>
+                        </div>
+                        
+                        <!-- User Numbers -->
+                        <div class="row text-center mb-3">
+                            <div class="col-4">
+                                <div class="detail-item">
+                                    <div class="label">Life Path</div>
+                                    <div class="h5" id="userLifePath"></div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="detail-item">
+                                    <div class="label">Destiny</div>
+                                    <div class="h5" id="userDestiny"></div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="detail-item">
+                                    <div class="label">Soul Urge</div>
+                                    <div class="h5" id="userSoulUrge"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Compatible Partners -->
+                        <div class="mt-4">
+                            <h4 class="mb-3"><i class="fas fa-users"></i> Compatible Life Paths</h4>
+                            <div id="compatiblePartners"></div>
+                        </div>
+                        
+                        <!-- Letter Suggestions -->
+                        <div class="mt-4">
+                            <h4 class="mb-3"><i class="fas fa-font"></i> Best First Letters for Partner Name</h4>
+                            <div class="row" id="letterSuggestions"></div>
+                        </div>
+                        
+                        <!-- Full Name Suggestions -->
+                        <div class="mt-4">
+                            <h4 class="mb-3"><i class="fas fa-user-plus"></i> Dynamically Generated Partner Names</h4>
+                            <div id="fullNameSuggestions"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+
+        // Match Check Form
+        document.getElementById('matchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                male: {
+                    name: document.getElementById('maleName').value,
+                    gender: 'Male',
+                    birth_date: document.getElementById('maleBirthDate').value,
+                    birth_time: document.getElementById('maleBirthTime').value,
+                    birth_place: document.getElementById('maleBirthPlace').value
+                },
+                female: {
+                    name: document.getElementById('femaleName').value,
+                    gender: 'Female',
+                    birth_date: document.getElementById('femaleBirthDate').value,
+                    birth_time: document.getElementById('femaleBirthTime').value,
+                    birth_place: document.getElementById('femaleBirthPlace').value
+                }
+            };
+
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_URL}/match-check`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (!response.ok) {
+                    alert('Error: ' + (result.detail || 'Unknown error occurred'));
+                    return;
+                }
+                displayMatchResult(result);
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Numerology Form
+        document.getElementById('numerologyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                name: document.getElementById('numName').value,
+                birth_date: document.getElementById('numBirthDate').value
+            };
+
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_URL}/numerology`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (!response.ok) {
+                    alert('Error: ' + (result.detail || 'Unknown error occurred'));
+                    return;
+                }
+                displayNumerologyResult(result);
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Partner Recommendation Form
+        document.getElementById('partnerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                name: document.getElementById('partnerName').value,
+                birth_date: document.getElementById('partnerBirthDate').value,
+                gender: document.getElementById('partnerGender').value
+            };
+
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_URL}/partner-recommendation`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (!response.ok) {
+                    alert('Error: ' + (result.detail || 'Unknown error occurred'));
+                    return;
+                }
+                displayPartnerResult(result);
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        function displayPartnerResult(result) {
+            // Hide other results
+            document.getElementById('matchResult').style.display = 'none';
+            document.getElementById('numerologyResult').style.display = 'none';
+            document.getElementById('partnerResult').style.display = 'block';
+            
+            // User profile
+            document.getElementById('partnerUserName').textContent = result.user_name;
+            
+            // Display opposite gender as recommended partner
+            const partnerGender = result.user_gender === 'Male' ? 'Female' : 'Male';
+            document.getElementById('partnerUserGender').textContent = `Recommended Partner Gender: ${partnerGender}`;
+            
+            document.getElementById('partnerLifePathCircle').textContent = result.user_life_path;
+            document.getElementById('partnerPrediction').textContent = result.user_prediction;
+            
+            // User numbers
+            document.getElementById('userLifePath').textContent = result.user_life_path;
+            document.getElementById('userDestiny').textContent = result.user_destiny_number;
+            document.getElementById('userSoulUrge').textContent = result.user_soul_urge;
+            
+            // Compatible partners
+            const partnersContainer = document.getElementById('compatiblePartners');
+            partnersContainer.innerHTML = '';
+            
+            result.compatible_partners.forEach(partner => {
+                const partnerDiv = document.createElement('div');
+                partnerDiv.className = 'detail-item mb-2';
+                partnerDiv.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Life Path ${partner.life_path_number}</strong>
+                            <span class="badge bg-${partner.partner_type === 'Best Match' ? 'success' : 'info'} ms-2">${partner.partner_type}</span>
+                            <div class="small">${partner.description}</div>
+                        </div>
+                        <div class="h4 mb-0">${partner.compatibility_score}%</div>
+                    </div>
+                `;
+                partnersContainer.appendChild(partnerDiv);
+            });
+            
+            // Letter suggestions
+            const letterContainer = document.getElementById('letterSuggestions');
+            letterContainer.innerHTML = '';
+            
+            if (result.letter_suggestions && result.letter_suggestions.length > 0) {
+                result.letter_suggestions.forEach(letter => {
+                    const letterDiv = document.createElement('div');
+                    letterDiv.className = 'col-4 col-md-2 mb-2';
+                    letterDiv.innerHTML = `
+                        <div class="detail-item text-center">
+                            <div class="h4 mb-0">${letter.suggested_name}</div>
+                            <div class="small">${letter.meaning}</div>
+                        </div>
+                    `;
+                    letterContainer.appendChild(letterDiv);
+                });
+            }
+            
+            // Full name suggestions
+            const nameContainer = document.getElementById('fullNameSuggestions');
+            nameContainer.innerHTML = '';
+            
+            if (result.full_name_suggestions && result.full_name_suggestions.length > 0) {
+                result.full_name_suggestions.forEach(name => {
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'col-6 col-md-4 mb-3';
+                    nameDiv.innerHTML = `
+                        <div class="name-suggestion-card">
+                            <div class="name">${name.suggested_name}</div>
+                            <div class="meaning">${name.meaning}</div>
+                            <div class="number">Destiny: ${name.name_number} | LP Compat: ${name.life_path_compatibility}</div>
+                        </div>
+                    `;
+                    nameContainer.appendChild(nameDiv);
+                });
+            } else {
+                nameContainer.innerHTML = '<p class="text-white">No specific name suggestions available.</p>';
+            }
+            
+            document.getElementById('partnerResult').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayMatchResult(result) {
+            // Check if result is an error response
+            if (!result || result.details === undefined) {
+                console.error('Error response:', result);
+                alert('Error: ' + (result?.detail || 'Unknown error occurred'));
+                return;
+            }
+            
+            document.getElementById('matchResult').style.display = 'block';
+            document.getElementById('numerologyResult').style.display = 'none';
+            document.getElementById('partnerResult').style.display = 'none';
+            
+            document.getElementById('coupleName').textContent = result.couple;
+            document.getElementById('scoreCircle').textContent = result.score;
+            document.getElementById('category').textContent = result.category;
+            document.getElementById('summary').textContent = result.summary;
+            
+            // Updated compatibility display - with null checks
+            document.getElementById('zodiacMatch').textContent = (result.details.zodiac_match || 0) + '%';
+            document.getElementById('lifePathMatch').textContent = (result.details.life_path_match || 0) + '%';
+            document.getElementById('destinyMatch').textContent = (result.details.destiny_match || 0) + '%';
+            document.getElementById('nameCompatibility').textContent = (result.details.name_compatibility || 0) + '%';
+            
+            // Personal numbers - with null checks
+            document.getElementById('maleNumbers').innerHTML = `
+                Life Path: ${result.details.male_life_path || 'N/A'} | 
+                Destiny: ${result.details.male_destiny || 'N/A'} | 
+                Soul Urge: ${result.details.male_soul_urge || 'N/A'}
+            `;
+            document.getElementById('femaleNumbers').innerHTML = `
+                Life Path: ${result.details.female_life_path || 'N/A'} | 
+                Destiny: ${result.details.female_destiny || 'N/A'} | 
+                Soul Urge: ${result.details.female_soul_urge || 'N/A'}
+            `;
+            
+            document.getElementById('matchResult').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayNumerologyResult(result) {
+            document.getElementById('numerologyResult').style.display = 'block';
+            document.getElementById('matchResult').style.display = 'none';
+            document.getElementById('partnerResult').style.display = 'none';
+            
+            document.getElementById('numNameResult').textContent = result.name;
+            document.getElementById('lifePathNum').textContent = result.life_path;
+            document.getElementById('destinyNum').textContent = result.destiny_number;
+            document.getElementById('soulUrgeNum').textContent = result.soul_urge;
+            document.getElementById('personalityNum').textContent = result.personality_number;
+            document.getElementById('birthDayNum').textContent = result.birth_day_number;
+            document.getElementById('challengeNum').textContent = result.challenge_number;
+            
+            // Display pinnacles
+            const pinnaclesDiv = document.getElementById('pinnacles');
+            if (result.pinnacles) {
+                pinnaclesDiv.innerHTML = `
+                    <span class="badge bg-light text-dark me-1">Age 0-35: ${result.pinnacles[1]}</span>
+                    <span class="badge bg-light text-dark me-1">Age 35-44: ${result.pinnacles[2]}</span>
+                    <span class="badge bg-light text-dark me-1">Age 45-53: ${result.pinnacles[3]}</span>
+                    <span class="badge bg-light text-dark">Age 54+: ${result.pinnacles[4]}</span>
+                `;
+            }
+            
+            document.getElementById('prediction').textContent = result.prediction;
+            
+            document.getElementById('numerologyResult').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        // Location Autocomplete Functionality using OpenStreetMap Nominatim API
+        const locationInputs = document.querySelectorAll('.location-input');
+        
+        locationInputs.forEach(input => {
+            const wrapper = input.closest('.autocomplete-wrapper');
+            const dropdown = wrapper.querySelector('.autocomplete-dropdown');
+            let debounceTimer;
+            
+            input.addEventListener('input', function() {
+                const query = this.value.trim();
+                
+                clearTimeout(debounceTimer);
+                
+                if (query.length < 3) {
+                    dropdown.classList.remove('show');
+                    return;
+                }
+                
+                // Show loading
+                dropdown.innerHTML = '<div class="autocomplete-loading">Searching...</div>';
+                dropdown.classList.add('show');
+                
+                debounceTimer = setTimeout(() => {
+                    fetchLocationSuggestions(query, dropdown, input);
+                }, 300);
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!wrapper.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+            
+            // Handle keyboard navigation
+            input.addEventListener('keydown', function(e) {
+                const items = dropdown.querySelectorAll('.autocomplete-item');
+                let activeItem = dropdown.querySelector('.autocomplete-item.active');
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (!activeItem && items.length > 0) {
+                        items[0].classList.add('active');
+                    } else if (activeItem && activeItem.nextElementSibling) {
+                        activeItem.classList.remove('active');
+                        activeItem.nextElementSibling.classList.add('active');
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (activeItem && activeItem.previousElementSibling) {
+                        activeItem.classList.remove('active');
+                        activeItem.previousElementSibling.classList.add('active');
+                    }
+                } else if (e.key === 'Enter') {
+                    if (activeItem) {
+                        e.preventDefault();
+                        activeItem.click();
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.classList.remove('show');
+                }
+            });
+        });
+        
+        async function fetchLocationSuggestions(query, dropdown, input) {
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5&accept-language=en`,
+                    {
+                        headers: {
+                            'User-Agent': 'AstrologyMatchApp/1.0',
+                            'Accept-Language': 'en-US,en;q=0.9'
+                        }
+                    }
+                );
+                
+                const data = await response.json();
+                
+                if (data.length === 0) {
+                    dropdown.innerHTML = '<div class="autocomplete-item">No locations found</div>';
+                    return;
+                }
+                
+                dropdown.innerHTML = '';
+                
+                data.forEach(place => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    
+                    // Format the location display
+                    let city = place.name || place.address?.city || place.address?.town || place.address?.village || '';
+                    let state = place.address?.state || place.address?.county || '';
+                    let country = place.address?.country || '';
+                    
+                    // Build display string
+                    let displayParts = [];
+                    if (city) displayParts.push(`<span class="city">${city}</span>`);
+                    if (state) displayParts.push(`<span class="state">${state}</span>`);
+                    if (country) displayParts.push(`<span class="country">${country}</span>`);
+                    
+                    item.innerHTML = displayParts.join(', ');
+                    
+                    // Store the formatted location
+                    const fullLocation = [city, state, country].filter(Boolean).join(', ');
+                    
+                    item.addEventListener('click', function() {
+                        input.value = fullLocation;
+                        dropdown.classList.remove('show');
+                    });
+                    
+                    dropdown.appendChild(item);
+                });
+                
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+                dropdown.innerHTML = '<div class="autocomplete-item">Error fetching locations</div>';
+            }
+        }
+    </script>
+</body>
+</html>
+
