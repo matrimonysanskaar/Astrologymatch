@@ -9,21 +9,22 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers
+# Routers
 app.include_router(match.router)
 app.include_router(numerology.router)
 app.include_router(partner_recommendation.router)
 
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+# Static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/")
@@ -41,11 +42,4 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
-
-
-if __name__ == "__main__":
-    import os
-    import uvicorn
-    port = int(os.environ.get("PORT", 5000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
 
